@@ -9,6 +9,8 @@ import {
   Typography,
   createTheme,
   ThemeProvider,
+  Grid,
+  Link,
 } from "@mui/material";
 import { LockOpenRounded } from "@mui/icons-material";
 import axios from "axios";
@@ -37,6 +39,7 @@ function SignUp() {
       }
       // Handle successful signup (e.g., redirect to login page)
     } catch (error) {
+      alert("Email ID already exists, please login");
       console.error("Signup error:", error);
       // Handle error (e.g., display error message)
     }
@@ -105,6 +108,13 @@ function SignUp() {
             >
               Sign Up
             </Button>
+            <Grid container>
+              <Grid item>
+                <Link href="/login" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
+            </Grid>
           </Box>
         </Box>
       </Container>

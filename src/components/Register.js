@@ -60,9 +60,9 @@ function Register() {
         window.location.reload();
       }
 
-      alert("User register succssfully");
+      alert("User register successfully");
     } catch (error) {
-      alert("All fields are mandatory");
+      // alert("All fields are mandatory");
       console.error("Error registering user:", error.response.data);
     }
   };
