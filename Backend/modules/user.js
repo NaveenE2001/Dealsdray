@@ -18,7 +18,11 @@ const UserSchema = new Schema(
       required: true,
     },
     gender: { type: String, enum: ["M", "F"], required: true },
-    courses: { type: [String], enum: ['MCA', 'BCA', 'BSC', 'B.Tech', 'M.Tech'], required: true },
+    courses: {
+      type: [String],
+      enum: ["MCA", "BCA", "B.Tech", "M.Tech"],
+      required: true,
+    }, // Multiple courses allowed
     image: { type: String },
   },
   { timestamps: true }

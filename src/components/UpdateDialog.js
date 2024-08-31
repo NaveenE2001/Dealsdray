@@ -9,11 +9,11 @@ import {
   DialogTitle,
   FormControl,
   FormControlLabel,
-  FormLabel,
   MenuItem,
-  Radio,
-  RadioGroup,
+  Checkbox,
   TextField,
+  FormGroup,
+  FormLabel,
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -24,28 +24,53 @@ const coursesList = ["MCA", "BCA", "B.Tech", "M.Tech"];
 function UpdateDialog({ open, handleClose, handleUpdate, user }) {
   const navigate = useNavigate();
   const [formData, setFormData] = React.useState({
-    name: user.name,
-    email: user.userName,
-    mobileNo: user.mobileNo,
-    designation: user.designation,
-    gender: user.gender,
-    courses: user.courses, // Assuming courses is a single string value now
-    image: user.image,
+    name: user.name || "",
+    email: user.userName || "",
+    mobileNo: user.mobileNo || "",
+    designation: user.designation || "",
+    gender: user.gender || "",
+    courses:
+      typeof user.courses === "string"
+        ? user.courses.split(",").map((course) => course.trim())
+        : Array.isArray(user.courses)
+        ? user.courses
+        : [], // Ensure this is always an array
+    image: user.image || "",
   });
+  console.log(user);
+
   const token = sessionStorage.getItem("token");
+  const baseURL = "http://localhost:5000/uploads/";
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
   const handleCourseChange = (event) => {
-    setFormData({ ...formData, courses: event.target.value });
+    const value = event.target.value;
+    setFormData((prev) => {
+      const currentCourses = Array.isArray(prev.courses) ? prev.courses : [];
+      const newCourses = currentCourses.includes(value)
+        ? currentCourses.filter((course) => course !== value)
+        : [...currentCourses, value];
+      return { ...prev, courses: newCourses };
+    });
   };
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
+    console.log(file);
+
     if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-      setFormData({ ...formData, image: URL.createObjectURL(file) });
+      // Create a URL for the selected file
+      const imageUrl = URL.createObjectURL(file);
+      console.log(imageUrl);
+
+      setFormData((prevData) => ({
+        ...prevData,
+        image: imageUrl,
+      }));
     } else {
       alert("Please select a valid image file (JPG or PNG).");
     }
@@ -56,7 +81,6 @@ function UpdateDialog({ open, handleClose, handleUpdate, user }) {
     try {
       const response = await axios.put(
         `http://localhost:5000/api/users/${user.id}`,
-
         {
           ...formData,
           userName: formData.email,
@@ -68,11 +92,9 @@ function UpdateDialog({ open, handleClose, handleUpdate, user }) {
         }
       );
       if (response.status === 200) {
-        // handleUpdate(response.data);
         navigate("/employe/table");
         window.location.reload();
       }
-
       handleClose();
     } catch (error) {
       console.error("Error updating user:", error);
@@ -144,34 +166,22 @@ function UpdateDialog({ open, handleClose, handleUpdate, user }) {
             ))}
           </TextField>
           <FormControl component="fieldset" margin="normal">
-            <FormLabel component="legend">Gender</FormLabel>
-            <RadioGroup
-              row
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-            >
-              <FormControlLabel value="M" control={<Radio />} label="Male" />
-              <FormControlLabel value="F" control={<Radio />} label="Female" />
-            </RadioGroup>
-          </FormControl>
-          <FormControl component="fieldset" margin="normal">
             <FormLabel component="legend">Courses</FormLabel>
-            <RadioGroup
-              row
-              name="courses"
-              value={formData.courses}
-              onChange={handleCourseChange}
-            >
+            <FormGroup>
               {coursesList.map((course) => (
                 <FormControlLabel
                   key={course}
-                  value={course}
-                  control={<Radio />}
+                  control={
+                    <Checkbox
+                      value={course}
+                      checked={formData.courses.includes(course)}
+                      onChange={handleCourseChange}
+                    />
+                  }
                   label={course}
                 />
               ))}
-            </RadioGroup>
+            </FormGroup>
           </FormControl>
           <Button
             variant="contained"
@@ -191,9 +201,9 @@ function UpdateDialog({ open, handleClose, handleUpdate, user }) {
           {formData.image && (
             <Box
               component="img"
-              src={formData.image}
+              src={user.image ? `${baseURL}${formData.image}` : formData.image}
               alt="Selected"
-              sx={{ width: "30%", height: "10%", marginLeft: "35%" }}
+              sx={{ width: "30%", height: "auto", marginLeft: "35%" }}
             />
           )}
         </Box>

@@ -45,6 +45,8 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, userName, mobileNo, designation, gender, courses } = req.body;
+   // console.log(req.file.filename,"file name from the backednd");
+    
     const image = req.file ? req.file.filename : null;
 
     const updatedUser = await User.findByIdAndUpdate(

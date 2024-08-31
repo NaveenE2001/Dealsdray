@@ -27,7 +27,7 @@ export default function DataTable() {
   const [fetchTrigger, setFetchTrigger] = React.useState(false);
   const [searchOptions, setSearchOptions] = React.useState([]);
   const [searchInput, setSearchInput] = React.useState("");
-  const baseURL = "http://localhost:5000/images/";
+  const baseURL = "http://localhost:5000/uploads/";
   const token = sessionStorage.getItem("token");
   console.log(token);
 
@@ -234,7 +234,6 @@ export default function DataTable() {
             width: 120,
             renderCell: (params) => {
               const imageUrl = `${baseURL}${params.value}`;
-
               return (
                 <img
                   src={imageUrl}

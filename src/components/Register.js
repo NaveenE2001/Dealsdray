@@ -1,22 +1,24 @@
-import LockOpenRounded from "../dealsdray_logo.jpg";
+import React, { useState } from "react";
 import {
   Avatar,
   Box,
+  Button,
+  Checkbox,
   Container,
   CssBaseline,
-  Button,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  Radio, // Add this import
+  RadioGroup,
+  FormLabel,
+  MenuItem,
   TextField,
   ThemeProvider,
   Typography,
   createTheme,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  MenuItem,
 } from "@mui/material";
-import React, { useState } from "react";
+import LockOpenRounded from "@mui/icons-material/LockOpenRounded";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -28,7 +30,7 @@ const coursesList = ["MCA", "BCA", "B.Tech", "M.Tech"];
 function Register() {
   const navigate = useNavigate();
   const [image, setImage] = useState(null);
-  const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedCourses, setSelectedCourses] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const token = sessionStorage.getItem("token");
 
@@ -36,13 +38,15 @@ function Register() {
     event.preventDefault();
     const formData = new FormData();
     formData.append("name", event.target.name.value);
-    formData.append("userName", event.target.email.value); // Ensure correct email field
+    formData.append("userName", event.target.email.value);
     formData.append("mobileNo", event.target.mobileNo.value);
     formData.append("designation", event.target.designation.value);
     formData.append("gender", event.target.gender.value);
-    formData.append("courses", selectedCourse); // Ensure correct course field
+  
+    selectedCourses.forEach((course) => formData.append("courses[]", course)); // Append each course separately
+  
     formData.append("image", imageFile);
-
+  
     try {
       const response = await axios.post(
         "http://localhost:5000/api/users/register",
@@ -59,13 +63,13 @@ function Register() {
         navigate("/employe/table");
         window.location.reload();
       }
-
-      alert("User register successfully");
+  
+      alert("User registered successfully");
     } catch (error) {
-      // alert("All fields are mandatory");
       console.error("Error registering user:", error.response.data);
     }
   };
+  
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -80,7 +84,12 @@ function Register() {
   };
 
   const handleCourseChange = (event) => {
-    setSelectedCourse(event.target.value);
+    const value = event.target.value;
+    setSelectedCourses((prev) =>
+      prev.includes(value)
+        ? prev.filter((course) => course !== value)
+        : [...prev, value]
+    );
   };
 
   return (
@@ -127,7 +136,7 @@ function Register() {
               fullWidth
               autoComplete="email"
               label="Email address"
-              type="email" // Ensure the input is of type email for better validation
+              type="email"
             />
             <TextField
               name="mobileNo"
@@ -166,21 +175,21 @@ function Register() {
             </FormControl>
             <FormControl component="fieldset" margin="normal">
               <FormLabel component="legend">Courses</FormLabel>
-              <RadioGroup
-                row
-                name="courses"
-                value={selectedCourse}
-                onChange={handleCourseChange}
-              >
+              <FormGroup row>
                 {coursesList.map((course) => (
                   <FormControlLabel
                     key={course}
-                    value={course}
-                    control={<Radio />}
+                    control={
+                      <Checkbox
+                        value={course}
+                        checked={selectedCourses.includes(course)}
+                        onChange={handleCourseChange}
+                      />
+                    }
                     label={course}
                   />
                 ))}
-              </RadioGroup>
+              </FormGroup>
             </FormControl>
             <Button
               variant="contained"

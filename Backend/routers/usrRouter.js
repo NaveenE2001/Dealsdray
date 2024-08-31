@@ -50,10 +50,19 @@ router.post(
       .isIn(["HR", "Manager", "Developer"])
       .withMessage("Invalid designation"),
     body("gender").isIn(["M", "F"]).withMessage("Gender must be M or F"),
-    // body('courses').isArray({ min: 1 }).withMessage('At least one course must be selected'),
     body("courses")
-      .isIn(["MCA", "BCA", "BSC", "B.Tech", "M.Tech"])
-      .withMessage("Invalid course"),
+      .isArray({ min: 1 })
+      .withMessage("At least one course must be selected")
+      .custom((courses) => {
+        const allowedCourses = ["MCA", "BCA", "BSC", "B.Tech", "M.Tech"];
+        const invalidCourses = courses.filter(
+          (course) => !allowedCourses.includes(course)
+        );
+        if (invalidCourses.length > 0) {
+          throw new Error("Invalid course(s) selected");
+        }
+        return true;
+      }),
   ],
   requiredSignin,
   registerUser
@@ -83,11 +92,20 @@ router.put(
       .optional()
       .isIn(["M", "F"])
       .withMessage("Gender must be M or F"),
-    //body('courses.*').optional().isArray({ min: 1 }).withMessage('At least one course must be selected'),
     body("courses")
       .optional()
-      .isIn(["MCA", "BCA", "BSC", "B.Tech", "M.Tech"])
-      .withMessage("Invalid course"),
+      .isArray({ min: 1 })
+      .withMessage("At least one course must be selected")
+      .custom((courses) => {
+        const allowedCourses = ["MCA", "BCA", "BSC", "B.Tech", "M.Tech"];
+        const invalidCourses = courses.filter(
+          (course) => !allowedCourses.includes(course)
+        );
+        if (invalidCourses.length > 0) {
+          throw new Error("Invalid course(s) selected");
+        }
+        return true;
+      }),
   ],
   requiredSignin,
   updateUser
